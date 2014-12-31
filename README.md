@@ -13,16 +13,20 @@ They are designed to handle 4 different cases :
 
 These modules are using specific variables which should be declared in Dolibarr **config/misc** menu :
 
-PDF_BGCOLOR_R          Value [0..255]     Background color : Red component
-PDF_BGCOLOR_G          Value [0..255]     Background color : Green component
-PDF_BGCOLOR_B          Value [0..255]     Background color : Blue component
-PDF_FRCOLOR_R          Value [0..255]     Frame color : Red component
-PDF_FRCOLOR_G          Value [0..255]     Frame color : Green component
-PDF_FRCOLOR_B          Value [0..255]     Frame color : Blue component
-PDF_TXCOLOR_R          Value [0..255]     Text color : Red component
-PDF_TXCOLOR_G          Value [0..255]     Text color : Green component
-PDF_TXCOLOR_B          Value [0..255]     Text color : Blue component
-PDF_SIGNATURE_PATH     String             Directory holding all the signature images
+|         Variable       |      Data      |                  Description                |
+| ---------------------- | -------------- | ------------------------------------------- |
+| **PDF_BGCOLOR_R**      | Value [0..255] | Background color : Red component            |
+| **PDF_BGCOLOR_G**      | Value [0..255] | Background color : Green component          |
+| **PDF_BGCOLOR_B**      | Value [0..255] | Background color : Blue component           |    
+| **PDF_FRCOLOR_R**      | Value [0..255] | Frame color : Red component                 |
+| **PDF_FRCOLOR_G**      | Value [0..255] | Frame color : Green component               |
+| **PDF_FRCOLOR_B**      | Value [0..255] | Frame color : Blue component                |
+| **PDF_TXCOLOR_R**      | Value [0..255] | Text color : Red component                  |
+| **PDF_TXCOLOR_G**      | Value [0..255] | Text color : Green component                |
+| **PDF_TXCOLOR_B**      | Value [0..255] | Text color : Blue component                 |
+| **PDF_SIGNATURE_PATH** |    String      | Directory holding all the signature images  |
+
+Signature files should be named **firstname lastname.jpg**
 
 All these modules are provided as-is by an Open-Source friendly French travel agency : 
 
