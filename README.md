@@ -28,10 +28,8 @@ These modules are using specific variables which should be declared in Dolibarr 
 
 Signature files should be named **firstname lastname.jpg**
 
-All these modules are provided as-is by an Open-Source friendly French travel agency : 
+All these modules are provided as-is by an *Open-Source friendly* French travel agency : 
 
-French Travel Organisation (FTO)
-
-http://www.fto-inde.com/
+[French Travel Organisation (FTO)](http://www.fto-inde.com/)
 
 If these modules help you in any way and you want to thank them ... just travel with them !
