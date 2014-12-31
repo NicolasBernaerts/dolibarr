@@ -5,8 +5,8 @@ This repository handles different models of contractual documents (bills & propo
 
 These documents are provided by an Open Source friendly French travel agency : 
 
-FTO
-French Travel Organisation
+French Travel Organisation (FTO)
+
 http://www.fto-inde.com/
 
 They follow the specific French travel agencies rules & regulations and handles 4 different cases :
