@@ -33,7 +33,6 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 
-
 /**
  *	Class to manage PDF invoice 
  *  Template FTO
@@ -41,12 +40,12 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 class pdf_fto_1 extends ModelePDFFactures
 {
 	// FTO - Specific variables. Available models :
-    //  1 - Private or professional from EU traveling to India
-    //  2 - Service to non european travel
-    //  3 - Private outside EU traveling to France
-    //  4 - Service to european professional
-    var $fto_model;
-    var $fto_textCGI;
+	//  1 - Private or professional from EU traveling to India
+	//  2 - Service to non european travel
+	//  3 - Private outside EU traveling to France
+	//  4 - Service to european professional
+	var $fto_model;
+	var $fto_textCGI;
 	var $fto_totalHT;
 	var $fto_priceUHT;
 	// FTO
@@ -139,8 +138,8 @@ class pdf_fto_1 extends ModelePDFFactures
 		$this->name        = $langs->transnoentities('FTOName'.$this->fto_model);
 		$this->description = $langs->transnoentities('FTODesc'.$this->fto_model);
 		// Set VAT franchise per model
-        $arrVAT = array(FALSE,FALSE,FALSE,TRUE);
-        $mysoc->tva_assuj = $arrVAT [$this->fto_model - 1];
+		$arrVAT = array(FALSE,FALSE,FALSE,TRUE);
+		$mysoc->tva_assuj = $arrVAT [$this->fto_model - 1];
 		$this->franchise=!$mysoc->tva_assuj;
 		if ($this->franchise) $conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT = "1";
 		// Genarate compressed and unencrypted PDF files
@@ -391,8 +390,8 @@ class pdf_fto_1 extends ModelePDFFactures
 					// Discount on line
 					if ($object->lines[$i]->remise_percent)
 					{
-                        $pdf->SetXY($this->posxdiscount-2, $curY);
-					    $remise_percent = pdf_getlineremisepercent($object, $i, $outputlangs, $hidedetails, $hookmanager);
+						$pdf->SetXY($this->posxdiscount-2, $curY);
+						$remise_percent = pdf_getlineremisepercent($object, $i, $outputlangs, $hidedetails, $hookmanager);
 						$pdf->MultiCell($this->postotalht-$this->posxdiscount+2, 3, $remise_percent, 0, 'R');
 					}
 
@@ -423,7 +422,7 @@ class pdf_fto_1 extends ModelePDFFactures
 					if (! isset($localtax2_type)) $localtax2_type = $localtax2_array[0];
 					//end TODO
 
-				    // retrieve global local tax
+					// retrieve global local tax
 					if ($localtax1_type == '7')
 						$localtax1_rate = $localtax1_array[1];
 					if ($localtax2_type == '7')
