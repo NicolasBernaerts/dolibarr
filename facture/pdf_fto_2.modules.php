@@ -1,10 +1,10 @@
 <?php
 /* Copyright (C) 2004-2012	Laurent Destailleur	<eldy@users.sourceforge.net>
  * Copyright (C) 2005-2012	Regis Houssin		<regis.houssin@capnetworks.com>
- * Copyright (C) 2008       Raphael Bertrand	<raphael.bertrand@resultic.fr>
+ * Copyright (C) 2008		Raphael Bertrand	<raphael.bertrand@resultic.fr>
  * Copyright (C) 2010-2012	Juanjo Menent		<jmenent@2byte.es>
  * Copyright (C) 2012      	Christophe Battarel	<christophe.battarel@altairis.fr>
- * Copyright (C) 2013-2014	Nicolas Bernaerts	<nicolas.bernaerts@gmail.com>
+ * Copyright (C) 2013-2016	Nicolas Bernaerts	<nicolas.bernaerts@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 
+
 /**
  *	Class to manage PDF invoice 
  *  Template FTO
@@ -40,15 +41,15 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 class pdf_fto_2 extends ModelePDFFactures
 {
 	// FTO - Specific variables. Available models :
-  //  1 - Private or professional from EU traveling to India
-  //  2 - Service to non european travel
-  //  3 - Private outside EU traveling to France
-  //  4 - Service to european professional
-  var $fto_model;
-  var $fto_textCGI;
-  var $fto_totalHT;
-  var $fto_priceUHT;
-  // FTO
+	//  1 - Private or professional from EU traveling to India
+	//  2 - Service to non european travel
+	//  3 - Private outside EU traveling to France
+	//  4 - Service to european professional
+	var $fto_model;
+	var $fto_textCGI;
+	var $fto_totalHT;
+	var $fto_priceUHT;
+	// FTO
 
 	var $db;
 	var $name;
@@ -139,8 +140,8 @@ class pdf_fto_2 extends ModelePDFFactures
 		$this->name         = $langs->transnoentities('FTOName'.$this->fto_model);
 		$this->description  = $langs->transnoentities('FTODesc'.$this->fto_model);
 		// Set VAT franchise per model
-        $arrVAT = array(FALSE,FALSE,FALSE,TRUE);
-        $mysoc->tva_assuj = $arrVAT [$this->fto_model - 1];
+		$arrVAT = array(FALSE,FALSE,FALSE,TRUE);
+		$mysoc->tva_assuj = $arrVAT [$this->fto_model - 1];
 		$this->franchise=!$mysoc->tva_assuj;
 		if ($this->franchise) $conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT = "1";
 		// Genarate compressed and unencrypted PDF files
@@ -391,8 +392,8 @@ class pdf_fto_2 extends ModelePDFFactures
 					// Discount on line
 					if ($object->lines[$i]->remise_percent)
 					{
-                        $pdf->SetXY($this->posxdiscount-2, $curY);
-					    $remise_percent = pdf_getlineremisepercent($object, $i, $outputlangs, $hidedetails, $hookmanager);
+						$pdf->SetXY($this->posxdiscount-2, $curY);
+						$remise_percent = pdf_getlineremisepercent($object, $i, $outputlangs, $hidedetails, $hookmanager);
 						$pdf->MultiCell($this->postotalht-$this->posxdiscount+2, 3, $remise_percent, 0, 'R');
 					}
 
@@ -423,7 +424,7 @@ class pdf_fto_2 extends ModelePDFFactures
 					if (! isset($localtax2_type)) $localtax2_type = $localtax2_array[0];
 					//end TODO
 
-				    // retrieve global local tax
+					// retrieve global local tax
 					if ($localtax1_type == '7')
 						$localtax1_rate = $localtax1_array[1];
 					if ($localtax2_type == '7')
@@ -512,7 +513,7 @@ class pdf_fto_2 extends ModelePDFFactures
 
 				// Pied de page
 				$this->_pagefoot($pdf,$object,$outputlangs);
-				$pdf->AliasNbPages();
+				if (method_exists($pdf,'AliasNbPages')) $pdf->AliasNbPages();
 
 				$pdf->Close();
 
@@ -832,13 +833,13 @@ class pdf_fto_2 extends ModelePDFFactures
 						$pdf->MultiCell(100, 3, $outputlangs->transnoentities('PaymentByChequeOrderedTo',$this->emetteur->name),0,'L',0);
 						$posy=$pdf->GetY()+1;
 
-			            if (empty($conf->global->MAIN_PDF_HIDE_CHQ_ADDRESS))
-			            {
+						if (empty($conf->global->MAIN_PDF_HIDE_CHQ_ADDRESS))
+			            		{
 							$pdf->SetXY($this->marge_gauche, $posy);
 							$pdf->SetFont('','', $default_font_size - 3);
 							$pdf->MultiCell(100, 3, $outputlangs->convToOutputCharset($this->emetteur->getFullAddress()), 0, 'L', 0);
 							$posy=$pdf->GetY()+2;
-			            }
+						}
 					}
 				}
 			}
@@ -898,11 +899,11 @@ class pdf_fto_2 extends ModelePDFFactures
 		$pdf->SetTextColor(0,0,0);
 		$pdf->SetFont('','B', $default_font_size - 1);
 		if ($this->franchise)
-		  { 
+		{ 
 			$pdf->SetFillColor(PDF_BGCOLOR_R,PDF_BGCOLOR_G,PDF_BGCOLOR_B); 
 			$pdf->SetTextColor(PDF_TXCOLOR_R,PDF_TXCOLOR_G,PDF_TXCOLOR_B);
 			$pdf->SetFont('','B', $default_font_size);
-		  }
+		}
 		// Position and size
 		$lltot = 200; 
 		$col1x = 125; 
@@ -1349,7 +1350,7 @@ class pdf_fto_2 extends ModelePDFFactures
 		$pdf->SetFont('','B', $default_font_size + 3);
 
 		$posy=$this->marge_haute;
-        $posx=$this->page_largeur-$this->marge_droite-100;
+		$posx=$this->page_largeur-$this->marge_droite-100;
 
 		$pdf->SetXY($this->marge_gauche,$posy);
 
