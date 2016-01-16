@@ -4,7 +4,7 @@
  * Copyright (C) 2008		Raphael Bertrand	<raphael.bertrand@resultic.fr>
  * Copyright (C) 2010-2012	Juanjo Menent		<jmenent@2byte.es>
  * Copyright (C) 2012      	Christophe Battarel	<christophe.battarel@altairis.fr>
- * Copyright (C) 2013-201	Nicolas Bernaerts	<nicolas.bernaerts@gmail.com>
+ * Copyright (C) 2013-2016 	Nicolas Bernaerts	<nicolas.bernaerts@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
+
 
 /**
  *	Class to manage PDF invoice 
@@ -390,7 +391,7 @@ class pdf_fto_1 extends ModelePDFFactures
 					// Discount on line
 					if ($object->lines[$i]->remise_percent)
 					{
-						$pdf->SetXY($this->posxdiscount-2, $curY);
+ 						$pdf->SetXY($this->posxdiscount-2, $curY);
 						$remise_percent = pdf_getlineremisepercent($object, $i, $outputlangs, $hidedetails, $hookmanager);
 						$pdf->MultiCell($this->postotalht-$this->posxdiscount+2, 3, $remise_percent, 0, 'R');
 					}
@@ -511,7 +512,7 @@ class pdf_fto_1 extends ModelePDFFactures
 
 				// Pied de page
 				$this->_pagefoot($pdf,$object,$outputlangs);
-				$pdf->AliasNbPages();
+				if (method_exists($pdf,'AliasNbPages')) $pdf->AliasNbPages();
 
 				$pdf->Close();
 
@@ -897,11 +898,11 @@ class pdf_fto_1 extends ModelePDFFactures
 		$pdf->SetTextColor(0,0,0);
 		$pdf->SetFont('','B', $default_font_size - 1);
 		if ($this->franchise)
-		  { 
+		{ 
 			$pdf->SetFillColor(PDF_BGCOLOR_R,PDF_BGCOLOR_G,PDF_BGCOLOR_B); 
 			$pdf->SetTextColor(PDF_TXCOLOR_R,PDF_TXCOLOR_G,PDF_TXCOLOR_B);
 			$pdf->SetFont('','B', $default_font_size);
-		  }
+		}
 		// Position and size
 		$lltot = 200; 
 		$col1x = 125; 
@@ -1348,7 +1349,7 @@ class pdf_fto_1 extends ModelePDFFactures
 		$pdf->SetFont('','B', $default_font_size + 3);
 
 		$posy=$this->marge_haute;
-        $posx=$this->page_largeur-$this->marge_droite-100;
+		$posx=$this->page_largeur-$this->marge_droite-100;
 
 		$pdf->SetXY($this->marge_gauche,$posy);
 
