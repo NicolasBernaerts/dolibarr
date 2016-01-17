@@ -1,4 +1,4 @@
-dolibarr
+FTO Dolibarr modules
 ========
 
 This repository handles different models of contractual documents for Dolibarr ERP version 3.8.
