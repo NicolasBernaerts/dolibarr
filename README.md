@@ -37,7 +37,7 @@ Signature files should be named **firstname lastname.jpg**
 
 All these modules are provided as-is by an *Open-Source friendly* French travel agency : 
 
-![French Travel Organisation (FTO)](http://www.fto-inde.com/images/indeetvous/fto-round.png)
+[![French Travel Organisation (FTO)](http://www.fto-inde.com/images/indeetvous/fto-round.png)](http://www.fto-inde.com/)
 
 [French Travel Organisation (FTO)](http://www.fto-inde.com/)
 
