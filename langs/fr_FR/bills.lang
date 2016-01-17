@@ -1,6 +1,5 @@
-...
- 
-# --- FTO ---
+
+# --- FTO models : Beginning ---
 # Model Name
 FTOName1=Particulier français en Inde 
 FTOName2=Société étrangère en France 
@@ -25,4 +24,4 @@ FTOTotal1=Total
 FTOTotal2=Total
 FTOTotal3=Total
 FTOTotal4=Total HT
-# --- FTO ---
+# --- FTO models : End ---
