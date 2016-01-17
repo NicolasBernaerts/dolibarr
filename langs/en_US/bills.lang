@@ -1,6 +1,5 @@
-...
- 
-# --- FTO ---
+
+# --- FTO models : Beginning ---
 # Model Name
 FTOName1=French private to India 
 FTOName2=Foreign company to France 
@@ -25,4 +24,4 @@ FTOTotal1=Total
 FTOTotal2=Total
 FTOTotal3=Total
 FTOTotal4=Total HT
-# --- FTO ---
+# --- FTO models : End ---
