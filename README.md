@@ -11,6 +11,11 @@ They are designed to handle 4 different cases :
   - Private outside EU traveling to EU
   - Service to european professional 
 
+To install them on an existing Dolibarr, just download fto_install.sh and run it.
+
+# wget https://raw.githubusercontent.com/NicolasBernaerts/dolibarr/master/fto_install.sh
+# . ./fto_install.sh
+
 These modules are using specific variables which should be declared in Dolibarr **config/misc** menu :
 
 |         Variable       |      Data      |                  Description                |
