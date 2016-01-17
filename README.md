@@ -1,7 +1,7 @@
 dolibarr
 ========
 
-This repository handles different models of contractual documents for Dolibarr ERP version 3.4.
+This repository handles different models of contractual documents for Dolibarr ERP version 3.8.
 
 It provides some commercial proposals & bills models that follow specific French travel agency rules & regulations.
 
@@ -36,6 +36,8 @@ These modules are using specific variables which should be declared in Dolibarr 
 Signature files should be named **firstname lastname.jpg**
 
 All these modules are provided as-is by an *Open-Source friendly* French travel agency : 
+
+![French Travel Organisation (FTO)](http://www.fto-inde.com/images/indeetvous/fto-round.png)
 
 [French Travel Organisation (FTO)](http://www.fto-inde.com/)
 
