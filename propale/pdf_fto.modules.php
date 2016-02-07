@@ -22,7 +22,7 @@
  */
 
 /**
- *	\file       htdocs/core/modules/propale/doc/pdf_azur.modules.php
+ *	\file       htdocs/core/modules/propale/doc/pdf_fto.modules.php
  *	\ingroup    propale
  *	\brief      Fichier de la classe permettant de generer les propales au modele Azur
  */
@@ -36,7 +36,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 /**
  *	Classe permettant de generer les propales au modele Azur
  */
-class pdf_fto_1 extends ModelePDFPropales
+class pdf_fto extends ModelePDFPropales
 {
 	// FTO - Specific variables. Available models :
 	//  1 - Private or professional from EU traveling to India
