@@ -13,7 +13,7 @@ FTODesc4=Service for european professional
 # VAT regulation text
 FTOVAT1=* Non applicable VAT under French regulation, art. 262bis of CGI
 FTOVAT2=* Non applicable VAT under French regulation, art. 259 of CGI
-FTOVAT3=* Invoice under the regulation of the French law for VAT for travel agencies, art. 266 of CGI
+FTOVAT3=* Billing done under the regulation of the French law for VAT for travel agencies, art. 266 of CGI
 FTOVAT4=none
 # Unit Price & Total Headers
 FTOUnit1=U.P.
