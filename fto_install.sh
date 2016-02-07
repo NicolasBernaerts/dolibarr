@@ -24,7 +24,8 @@ wget -O "${DOLIBARR_MODULE}/propale/doc/pdf_fto_3.modules.php" "${GITHUB_REPO}/p
 wget -O "${DOLIBARR_MODULE}/propale/doc/pdf_fto_4.modules.php" "${GITHUB_REPO}/propale/pdf_fto_4.modules.php"
 
 # Installation : Orders
-wget -O "${DOLIBARR_MODULE}/commande/doc/pdf_fto.modules.php" "${GITHUB_REPO}/commande/pdf_fto.modules.php"
+wget -O "${DOLIBARR_MODULE}/commande/doc/pdf_fto_2.modules.php" "${GITHUB_REPO}/commande/pdf_fto.modules.php"
+sed -i 's/pdf_fto/pdf_fto_2/g' "${DOLIBARR_MODULE}/commande/doc/pdf_fto_2.modules.php"
 
 # Installation : FTO models langage files 
 # en_US
