@@ -33,12 +33,25 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 
-
 /**
  *	Classe permettant de generer les commandes au modele FTO
  */
+
+//require_once ($fileClassName);
 class pdf_fto extends ModelePDFCommandes
 {
+	// FTO - Specific variables. Available models :
+	//   1 : Private or professional from EU traveling to India
+	//   2 : Service to non european travel
+	//   3 : Private outside EU traveling to France
+	//   4 : Service to european professional
+	var $fto_model;
+	var $fto_textCGI;
+	var $fto_totalHT;
+	var $fto_priceUHT;
+	var $fto_arrVAT = array (FALSE,FALSE,FALSE,TRUE);
+	// FTO
+
 	var $db;
 	var $name;
 	var $description;
@@ -51,16 +64,11 @@ class pdf_fto extends ModelePDFCommandes
 	var $page_hauteur;
 	var $format;
 	var $marge_gauche;
-	var	$marge_droite;
-	var	$marge_haute;
-	var	$marge_basse;
+	var $marge_droite;
+	var $marge_haute;
+	var $marge_basse;
 
 	var $emetteur;	// Objet societe qui emet
-
-	// FTO - variables specific to VAT
-	var $desc_totalHT;
-	var $desc_priceUHT;
-	// FTO
 
 	/**
 	 *	Constructor
@@ -75,7 +83,7 @@ class pdf_fto extends ModelePDFCommandes
 		$langs->load("bills");
 
 		$this->db = $db;
-		$this->name = "fto";
+		$this->name = "einstein";
 		$this->description = $langs->trans('PDFEinsteinDescription');
 
 		// Dimension page pour format A4
@@ -128,9 +136,17 @@ class pdf_fto extends ModelePDFCommandes
 		$this->atleastoneratenotnull=0;
 		$this->atleastonediscount=0;
 
-		// FTO - Initialize specific descriptions according to VAT
-		$this->desc_totalHT  = "";
-		$this->desc_priceUHT = "";
+		// FTO - model name and description
+		$this->fto_model   = substr (get_class ($this), -1);
+		$this->name        = $langs->transnoentities('FTOName'.$this->fto_model);
+		$this->description = $langs->transnoentities('FTODesc'.$this->fto_model);
+		// Set VAT franchise per model
+        	$mysoc->tva_assuj = $this->fto_arrVAT [$this->fto_model - 1];
+		$this->franchise=!$mysoc->tva_assuj;
+		if ($this->franchise) $conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT = "1";
+		// Generate compressed and unencrypted PDF files
+		$conf->global->PDF_SECURITY_ENCRYPTION = FALSE;
+		$conf->global->MAIN_DISABLE_PDF_COMPRESSION = FALSE;
 		// FTO
 	}
 
@@ -161,10 +177,11 @@ class pdf_fto extends ModelePDFCommandes
 		$outputlangs->load("products");
 		$outputlangs->load("orders");
 
-		// FTO - genarate compressed and unencrypted PDF files
-		$conf->global->PDF_SECURITY_ENCRYPTION = FALSE;
-		$conf->global->MAIN_DISABLE_PDF_COMPRESSION = FALSE;
+		// FTO - Initialize from selected language
 		$default_font_size = pdf_getPDFFontSize($outputlangs);
+		$this->fto_textCGI  = $outputlangs->transnoentities('FTOVAT'.$this->fto_model);
+		$this->fto_priceUHT = $outputlangs->transnoentities('FTOUnit'.$this->fto_model);
+		$this->fto_totalHT  = $outputlangs->transnoentities('FTOTotal'.$this->fto_model);
 		// FTO
 
 		if ($conf->commande->dir_output)
@@ -198,26 +215,6 @@ class pdf_fto extends ModelePDFCommandes
 			if (file_exists($dir))
 			{
 				$nblignes = count($object->lines);
-
-				// FTO - Loop thru articles to check if at least one item is having VAT
-				$noVAT = TRUE;
-				for ($i = 0 ; $i < $nblignes ; $i++) 
-				 { if($object->lines[$i]->tva_tx > 0) $noVAT = FALSE; }
-				// FTO
-
-				// FTO - Set headers according to VAT or not
-				if ($noVAT) 
-				{
-					$conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT = "1";
-					$this->desc_totalHT  = $outputlangs->transnoentities("Total");
-					$this->desc_priceUHT = $outputlangs->transnoentities("PriceU");
-				}
-				else 
-				{
-					$this->desc_totalHT  = $outputlangs->transnoentities("TotalHT");
-					$this->desc_priceUHT = $outputlangs->transnoentities("PriceUHT");
-				}
-				// FTO
 
 				// Create pdf instance
 				$pdf=pdf_getInstance($this->format);
@@ -285,11 +282,8 @@ class pdf_fto extends ModelePDFCommandes
 				{
 					$tab_top = 88;
 
-					// FTO - notes text in bold
+					// FTO - Notes text in bold and Set left and right padding for note
 					$pdf->SetFont('','B', $default_font_size - 1);
-					// FTO
-
-					// FTO - Set left and right padding for note
 					$pdf->SetXY ($this->posxdesc+4, $tab_top);
 					$pdf->MultiCell(180, 3, $outputlangs->convToOutputCharset($object->note_public), 0, 'L'); 
 					// FTO
@@ -427,7 +421,7 @@ class pdf_fto extends ModelePDFCommandes
 					if (! isset($localtax2_type)) $localtax2_type = $localtax2_array[0];
 					//end TODO
 
-				    // retrieve global local tax
+					// retrieve global local tax
 					if ($localtax1_type == '7')
 						$localtax1_rate = $localtax1_array[1];
 					if ($localtax2_type == '7')
@@ -555,7 +549,7 @@ class pdf_fto extends ModelePDFCommandes
 
 	/**
 	 *  Show payments table
-     *
+	 *
 	 *  @param	PDF			&$pdf     		Object PDF
 	 *  @param  Object		$object			Object order
 	 *	@param	int			$posy			Position y in PDF
@@ -588,11 +582,14 @@ class pdf_fto extends ModelePDFCommandes
 		// FTO
 
 		// If France, show VAT mention if not applicable
-		if ($this->emetteur->pays_code == 'FR' && $this->franchise == 1)
+		if ($this->emetteur->country_code == 'FR' && $this->franchise == TRUE)
 		{
 			$pdf->SetFont('','B', $default_font_size - 2);
 			$pdf->SetXY($this->marge_gauche, $posy);
-			$pdf->MultiCell(100, 3, $outputlangs->transnoentities("VATIsNotUsedForInvoice"), 0, 'L', 0);
+
+			// FTO - if needed, display CGI text
+			if ($this->fto_textCGI != "none") $pdf->MultiCell(100, 3, $this->fto_textCGI, 0, 'L', 0);
+			// FTO
 
 			$posy=$pdf->GetY()+4;
 		}
@@ -616,97 +613,82 @@ class pdf_fto extends ModelePDFCommandes
 			$posy=$pdf->GetY()+3;
 		}
 
-        // Check a payment mode is defined
-        /* Not used with orders
-		if (empty($object->mode_reglement_code)
-        	&& ! $conf->global->FACTURE_CHQ_NUMBER
-        	&& ! $conf->global->FACTURE_RIB_NUMBER)
-		{
-            $pdf->SetXY($this->marge_gauche, $posy);
-            $pdf->SetTextColor(200,0,0);
-            $pdf->SetFont('','B', $default_font_size - 2);
-            $pdf->MultiCell(80, 3, $outputlangs->transnoentities("ErrorNoPaiementModeConfigured"),0,'L',0);
-            $pdf->SetTextColor(0,0,0);
-
-            $posy=$pdf->GetY()+1;
-        }
-		*/
-
-      	// Show payment mode
-        if ($object->mode_reglement_code
+		// Show payment mode
+		if ($object->mode_reglement_code
         	 && $object->mode_reglement_code != 'CHQ'
            	 && $object->mode_reglement_code != 'VIR')
-           	 {
-	            $pdf->SetFont('','B', $default_font_size - 2);
-	            $pdf->SetXY($this->marge_gauche, $posy);
-	            $titre = $outputlangs->transnoentities("PaymentMode").':';
-	            $pdf->MultiCell(80, 5, $titre, 0, 'L');
+		{
+			$pdf->SetFont('','B', $default_font_size - 2);
+			$pdf->SetXY($this->marge_gauche, $posy);
+			$titre = $outputlangs->transnoentities("PaymentMode").':';
+			$pdf->MultiCell(80, 5, $titre, 0, 'L');
 
-				$pdf->SetFont('','', $default_font_size - 2);
-	            $pdf->SetXY($posxval, $posy);
-	            $lib_mode_reg=$outputlangs->transnoentities("PaymentType".$object->mode_reglement_code)!=('PaymentType'.$object->mode_reglement_code)?$outputlangs->transnoentities("PaymentType".$object->mode_reglement_code):$outputlangs->convToOutputCharset($object->mode_reglement);
-	            $pdf->MultiCell(80, 5, $lib_mode_reg,0,'L');
+			$pdf->SetFont('','', $default_font_size - 2);
+			$pdf->SetXY($posxval, $posy);
+			$lib_mode_reg=$outputlangs->transnoentities("PaymentType".$object->mode_reglement_code)!=('PaymentType'.$object->mode_reglement_code)?$outputlangs->transnoentities("PaymentType".$object->mode_reglement_code):$outputlangs->convToOutputCharset($object->mode_reglement);
+			$pdf->MultiCell(80, 5, $lib_mode_reg,0,'L');
 
-	            $posy=$pdf->GetY()+2;
-           	 }
-
-		// Show payment mode CHQ
-        if (empty($object->mode_reglement_code) || $object->mode_reglement_code == 'CHQ')
-        {
-        	// Si mode reglement non force ou si force a CHQ
-	        if (! empty($conf->global->FACTURE_CHQ_NUMBER))
-	        {
-	            if ($conf->global->FACTURE_CHQ_NUMBER > 0)
-	            {
-	                $account = new Account($this->db);
-	                $account->fetch($conf->global->FACTURE_CHQ_NUMBER);
-
-	                $pdf->SetXY($this->marge_gauche, $posy);
-	                $pdf->SetFont('','B', $default_font_size - 3);
-	                $pdf->MultiCell(100, 3, $outputlangs->transnoentities('PaymentByChequeOrderedTo',$account->proprio),0,'L',0);
-		            $posy=$pdf->GetY()+1;
-
-		            if (empty($conf->global->MAIN_PDF_HIDE_CHQ_ADDRESS))
-		            {
-		                $pdf->SetXY($this->marge_gauche, $posy);
-		                $pdf->SetFont('','', $default_font_size - 3);
-		                $pdf->MultiCell(100, 3, $outputlangs->convToOutputCharset($account->adresse_proprio), 0, 'L', 0);
-			            $posy=$pdf->GetY()+2;
-		            }
-	            }
-	            if ($conf->global->FACTURE_CHQ_NUMBER == -1)
-	            {
-	                $pdf->SetXY($this->marge_gauche, $posy);
-	                $pdf->SetFont('','B', $default_font_size - 3);
-	                $pdf->MultiCell(100, 3, $outputlangs->transnoentities('PaymentByChequeOrderedTo',$this->emetteur->name),0,'L',0);
-		            $posy=$pdf->GetY()+1;
-
-		            if (empty($conf->global->MAIN_PDF_HIDE_CHQ_ADDRESS))
-		            {
-			            $pdf->SetXY($this->marge_gauche, $posy);
-		                $pdf->SetFont('','', $default_font_size - 3);
-		                $pdf->MultiCell(100, 3, $outputlangs->convToOutputCharset($this->emetteur->getFullAddress()), 0, 'L', 0);
-			            $posy=$pdf->GetY()+2;
-		            }
-	            }
-	        }
+			$posy=$pdf->GetY()+2;
 		}
 
-        // If payment mode not forced or forced to VIR, show payment with BAN
-        if (empty($object->mode_reglement_code) || $object->mode_reglement_code == 'VIR')
-        {
-	        if (! empty($conf->global->FACTURE_RIB_NUMBER))
-	        {
-                $account = new Account($this->db);
-                $account->fetch($conf->global->FACTURE_RIB_NUMBER);
+		// Show payment mode CHQ
+		if (empty($object->mode_reglement_code) || $object->mode_reglement_code == 'CHQ')
+		{
+			// Si mode reglement non force ou si force a CHQ
+			if (! empty($conf->global->FACTURE_CHQ_NUMBER))
+			{
+				if ($conf->global->FACTURE_CHQ_NUMBER > 0)
+				{
+					$account = new Account($this->db);
+					$account->fetch($conf->global->FACTURE_CHQ_NUMBER);
 
-                $curx=$this->marge_gauche;
-                $cury=$posy;
+					$pdf->SetXY($this->marge_gauche, $posy);
+					$pdf->SetFont('','B', $default_font_size - 3);
+					$pdf->MultiCell(100, 3, $outputlangs->transnoentities('PaymentByChequeOrderedTo',$account->proprio),0,'L',0);
+					$posy=$pdf->GetY()+1;
 
-                $posy=pdf_bank($pdf,$outputlangs,$curx,$cury,$account,0,$default_font_size);
+					if (empty($conf->global->MAIN_PDF_HIDE_CHQ_ADDRESS))
+					{
+						$pdf->SetXY($this->marge_gauche, $posy);
+						$pdf->SetFont('','', $default_font_size - 3);
+						$pdf->MultiCell(100, 3, $outputlangs->convToOutputCharset($account->adresse_proprio), 0, 'L', 0);
+						$posy=$pdf->GetY()+2;
+					}
+				}
 
-                $posy+=2;
-	        }
+				if ($conf->global->FACTURE_CHQ_NUMBER == -1)
+				{
+					$pdf->SetXY($this->marge_gauche, $posy);
+					$pdf->SetFont('','B', $default_font_size - 3);
+					$pdf->MultiCell(100, 3, $outputlangs->transnoentities('PaymentByChequeOrderedTo',$this->emetteur->name),0,'L',0);
+					$posy=$pdf->GetY()+1;
+
+					if (empty($conf->global->MAIN_PDF_HIDE_CHQ_ADDRESS))
+					{
+						$pdf->SetXY($this->marge_gauche, $posy);
+						$pdf->SetFont('','', $default_font_size - 3);
+						$pdf->MultiCell(100, 3, $outputlangs->convToOutputCharset($this->emetteur->getFullAddress()), 0, 'L', 0);
+						$posy=$pdf->GetY()+2;
+					}
+				}
+			}
+		}
+
+		// If payment mode not forced or forced to VIR, show payment with BAN
+		if (empty($object->mode_reglement_code) || $object->mode_reglement_code == 'VIR')
+		{
+			if (! empty($conf->global->FACTURE_RIB_NUMBER))
+			{
+				$account = new Account($this->db);
+				$account->fetch($conf->global->FACTURE_RIB_NUMBER);
+
+				$curx=$this->marge_gauche;
+				$cury=$posy;
+
+				$posy=pdf_bank($pdf,$outputlangs,$curx,$cury,$account,0,$default_font_size);
+
+				$posy+=2;
+			}
 		}
 
 		return $posy;
@@ -736,22 +718,18 @@ class pdf_fto extends ModelePDFCommandes
 		$tab2_top = $posy;
 		$tab2_hl = 4;
 
-		// FTO - Color and style of total according to VAT or not
-		if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT)) 
-		  { 
-			$pdf->SetFillColor(255,255,255); 
-			$pdf->SetTextColor(0,0,0);
-			$pdf->SetFont('','B', $default_font_size - 1);
-		  }
-		else 
+		// FTO - Total table
+		// Color and style according to VAT or not
+		$pdf->SetFillColor(255,255,255); 
+		$pdf->SetTextColor(0,0,0);
+		$pdf->SetFont('','B', $default_font_size - 1);
+		if ($this->franchise)
 		  { 
 			$pdf->SetFillColor(PDF_BGCOLOR_R,PDF_BGCOLOR_G,PDF_BGCOLOR_B); 
 			$pdf->SetTextColor(PDF_TXCOLOR_R,PDF_TXCOLOR_G,PDF_TXCOLOR_B);
 			$pdf->SetFont('','B', $default_font_size);
 		  }
-		// FTO 
-
-		// FTO - Total table
+		// Position and size
 		$lltot = 200; 
 		$col1x = 125; 
 		$col2x = 161; 
@@ -764,7 +742,11 @@ class pdf_fto extends ModelePDFCommandes
 		// Total HT
 		$pdf->SetFillColor(255,255,255);
 		$pdf->SetXY($col1x, $tab2_top + 0);
-		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
+
+		// FTO - Total HT label (according to VAT status)
+		if ($this->franchise) $pdf->SetFillColor(PDF_BGCOLOR_R,PDF_BGCOLOR_G,PDF_BGCOLOR_B); 
+		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $this->fto_totalHT, 0, 'L', 1);
+		// FTO
 
 		$pdf->SetXY($col2x, $tab2_top + 0);
 		$pdf->MultiCell($largcol2, $tab2_hl, price($object->total_ht + (! empty($object->remise)?$object->remise:0)), 0, 'R', 1);
@@ -1012,17 +994,18 @@ class pdf_fto extends ModelePDFCommandes
 			$pdf->SetTextColor(0,0,0);
 		}
 
-		// FTO - Signature with name and scan (needs $user declared as global)
+		// FTO - Signature (needs $user declared as global)
+		// Generate filename
 		$signName = $user->getFullName($outputlangs);
 		$signFile = PDF_SIGNATURE_PATH . "/" . $signName . ".jpg";
-
+		// Style
 		$pdf->SetTextColor(PDF_TXCOLOR_R,PDF_TXCOLOR_G,PDF_TXCOLOR_B);
 		$pdf->SetFont('','B', $default_font_size);
-
+		// Signature
 		if (file_exists ( $signFile )) $pdf->Image($signFile, 90, $tab2_top + ($tab2_hl * $index) + 12, 0, 30);
-		$pdf->SetXY (90, $tab2_top + ($tab2_hl * $index) + 12);
+		$pdf->SetXY (120, $tab2_top + ($tab2_hl * $index) + 12);
 		$pdf->MultiCell($largcol2, $tab2_hl, $signName, 0, 'L', 1);
-
+		// Previous style
 		$pdf->SetTextColor(0,0,0);
 		$pdf->SetFont('','', $default_font_size - 1);
 		// FTO
@@ -1053,14 +1036,13 @@ class pdf_fto extends ModelePDFCommandes
 
 		$default_font_size = pdf_getPDFFontSize($outputlangs);
 
-		// FTO - Color and style for the table frame
+		// FTO - Table frame
+		// Color and style
 		$pdf->SetFillColor(PDF_BGCOLOR_R,PDF_BGCOLOR_G,PDF_BGCOLOR_B);
 		$pdf->SetDrawColor(PDF_FRCOLOR_R,PDF_FRCOLOR_G,PDF_FRCOLOR_B);
 		$pdf->SetTextColor(0,0,0);
 		$pdf->SetFont('','', $default_font_size - 1);
-		// FTO
-
-		// FTO - Table frame with rounded corners
+		// Frame with rounded corners
 		$pdf->RoundedRect($this->marge_gauche, $tab_top,  $this->page_largeur-$this->marge_gauche-$this->marge_droite, 5, 3, "1001", 'DF');
 		$pdf->RoundedRect($this->marge_gauche, $tab_top+5,  $this->page_largeur-$this->marge_gauche-$this->marge_droite, $tab_height-5, 3, "0110", 'D');
 		// FTO
@@ -1079,8 +1061,6 @@ class pdf_fto extends ModelePDFCommandes
 
 
 		// Output Rect
-//		$this->printRect($pdf,$this->marge_gauche, $tab_top, $this->page_largeur-$this->marge_gauche-$this->marge_droite, $tab_height, $hidetop, $hidebottom);	// Rect prend une longueur en 3eme param et 4eme param
-
 		if (empty($hidetop))
 		{
 			$pdf->line($this->marge_gauche, $tab_top+5, $this->page_largeur-$this->marge_droite, $tab_top+5);	// line prend une position y en 2eme param et 4eme param
@@ -1102,8 +1082,10 @@ class pdf_fto extends ModelePDFCommandes
 		$pdf->line($this->posxup-1, $tab_top, $this->posxup-1, $tab_top + $tab_height);
 		if (empty($hidetop))
 		{
+			// FTO - Unit Price HT label according to VAT status
 			$pdf->SetXY($this->posxup-1, $tab_top+1);
-			$pdf->MultiCell($this->posxqty-$this->posxup-1,2, $outputlangs->transnoentities("PriceUHT"),'','C');
+			$pdf->MultiCell($this->posxqty-$this->posxup-1,2, $this->fto_priceUHT,'','C');
+			// FTO	
 		}
 
 		$pdf->line($this->posxqty-1, $tab_top, $this->posxqty-1, $tab_top + $tab_height);
@@ -1129,8 +1111,10 @@ class pdf_fto extends ModelePDFCommandes
 		}
 		if (empty($hidetop))
 		{
+			// FTO - Total HT label according to VAT status
 			$pdf->SetXY($this->postotalht-1, $tab_top+1);
-			$pdf->MultiCell(30,2, $outputlangs->transnoentities("TotalHT"),'','C');
+			$pdf->MultiCell(30,2, $this->fto_totalHT, '', 'C');
+			// FTO
 		}
 	}
 
@@ -1170,12 +1154,8 @@ class pdf_fto extends ModelePDFCommandes
 
 		$pdf->SetXY($this->marge_gauche,$posy);
 
-		// FTO - Text style
+		// FTO - Text style and logo
 		$pdf->SetTextColor(PDF_TXCOLOR_R,PDF_TXCOLOR_G,PDF_TXCOLOR_B);
-		// FTO
-
-		// FTO - Logo
-		$logo=$conf->mycompany->dir_output.'/logos/'.$this->emetteur->logo;
 		if (is_readable($logo)) $pdf->Image($logo, $this->marge_gauche, $posy - 5, 0, 40);
 		// FTO
 
@@ -1223,32 +1203,28 @@ class pdf_fto extends ModelePDFCommandes
 			// Sender properties
 			$carac_emetteur = pdf_build_address($outputlangs,$this->emetteur);
 
-			// FTO - Sender size and position
+			// FTO - Sender frame
+			// Size and position
 			$posx=$this->marge_gauche;
 			$posy=50;
 			$hautcadre=32;
 			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=105;
-			// FTO
-
-			// FTO - Show sender frame title
+			// Frame title
 			$pdf->SetTextColor(0,0,0);
 			$pdf->SetFont('','',$default_font_size - 2);
 			$pdf->SetXY($posx,$posy-4);
 			$pdf->MultiCell(88, 4, $outputlangs->transnoentities("BillFrom"), 0, 'L');
-
-			// FTO - Sender style
+			// Style
 			$pdf->SetDrawColor(PDF_BGCOLOR_R,PDF_BGCOLOR_G,PDF_BGCOLOR_B);
 			$pdf->SetFillColor(PDF_BGCOLOR_R,PDF_BGCOLOR_G,PDF_BGCOLOR_B);
 			$pdf->SetTextColor(PDF_TXCOLOR_R,PDF_TXCOLOR_G,PDF_TXCOLOR_B);
-			// FTO
-
-			// FTO - Sender frame 
+			// Frame 
 			$pdf->RoundedRect($posx, $posy, 82, $hautcadre, 3, "1111", 'DF');
-			// Show sender name
+			// Name
 			$pdf->SetFont('','B',$default_font_size);
 			$pdf->SetXY($posx+2,$posy+3);
 			$pdf->MultiCell(78, 4, $outputlangs->convToOutputCharset($this->emetteur->name), 0, 'L');
-			// Show sender information
+			// Information
 			$pdf->SetFont('','',$default_font_size - 1);
 			$pdf->SetXY($posx+2,$posy+8);
 			$pdf->MultiCell(78,3,$carac_emetteur, 0, 'L');
@@ -1278,32 +1254,27 @@ class pdf_fto extends ModelePDFCommandes
 
 			$carac_client=pdf_build_address($outputlangs,$this->emetteur,$object->client,($usecontact?$object->contact:''),$usecontact,'target');
 
-			// FTO - Recipient frame size and position
+			// FTO - Customer frame
+			// Frame size and position
 			$posy=50;
 			$posx=105;
 			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->marge_gauche;
-			// FTO
-
-			// FTO - Recipient title
+			// Title
 			$pdf->SetTextColor(0,0,0);
 			$pdf->SetXY($posx,$posy-4);
 			$pdf->SetFont('','', $default_font_size - 2);
 			$pdf->MultiCell(88, 4, $outputlangs->transnoentities("BillTo"), 0, 'L');
-			// FTO
-
-			// FTO - Style for recipient
+			// Style
 			$pdf->SetDrawColor(PDF_FRCOLOR_R,PDF_FRCOLOR_G,PDF_FRCOLOR_B);
 			$pdf->SetFillColor(255,255,255);
 			$pdf->SetTextColor(PDF_TXCOLOR_R,PDF_TXCOLOR_G,PDF_TXCOLOR_B);
-			// FTO
-
-			// FTO - Recipient frame
+			// Frame
 			$pdf->RoundedRect($posx, $posy, 96, $hautcadre, 3, "1111", 'DF');
-			// Show recipient name
+			// Name
 			$pdf->SetXY($posx+2,$posy+3);
 			$pdf->SetFont('','B', $default_font_size);
 			$pdf->MultiCell(90, 4, $carac_client_name, 0, 'L');
-			// Show recipient information
+			// Information
 			$pdf->SetFont('','', $default_font_size - 1);
 			$pdf->SetXY($posx+2,$posy+8);
 			$pdf->MultiCell(90, 3, $carac_client);
@@ -1319,7 +1290,7 @@ class pdf_fto extends ModelePDFCommandes
 
 	/**
 	 *   	Show footer of page. Need this->emetteur object
-     *
+	 *
 	 *   	@param	PDF			&$pdf     			PDF
 	 * 		@param	Object		$object				Object to show
 	 *      @param	Translate	$outputlangs		Object lang for output
@@ -1328,7 +1299,7 @@ class pdf_fto extends ModelePDFCommandes
 	 */
 	function _pagefoot(&$pdf,$object,$outputlangs,$hidefreetext=0)
 	{
-		// FTO - Chart
+		// FTO - Black font for footer
 		$pdf->SetTextColor(0,0,0);
 		// FTO
 
