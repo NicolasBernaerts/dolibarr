@@ -13,7 +13,7 @@ FTODesc4=Service pour société européenne
 # VAT regulation text
 FTOVAT1=* TVA non applicable, article 262bis du CGI
 FTOVAT2=* TVA non applicable, article 259 du CGI
-FTOVAT3=* Facture régie par la TVA entre agences de voyages, article 266 du CGI
+FTOVAT3=* Facturation régie par la TVA entre agences de voyages, article 266 du CGI
 FTOVAT4=none
 # Unit Price & Total Headers
 FTOUnit1=P.U.
