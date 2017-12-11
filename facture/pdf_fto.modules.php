@@ -134,7 +134,9 @@ class pdf_fto_1 extends ModelePDFFactures
 		$this->atleastoneratenotnull=0;
 		$this->atleastonediscount=0;
 
-		// FTO - model name and description
+		// FTO - Load language specificities
+		$langs->load("fto");
+		// Model name and description
 		$this->fto_model   = substr (get_class ($this), -1);
 		$this->name        = $langs->transnoentities('FTOInvoice'.$this->fto_model);
 		$this->description = $langs->transnoentities('FTODesc'.$this->fto_model);
@@ -177,6 +179,7 @@ class pdf_fto_1 extends ModelePDFFactures
 		$outputlangs->load("products");
 
 		// FTO - Initialize from selected language
+		$outputlangs->load("fto");
 		$this->fto_textCGI  = $outputlangs->transnoentities('FTOVAT'.$this->fto_model);
 		$this->fto_priceUHT = $outputlangs->transnoentities('FTOUnit'.$this->fto_model);
 		$this->fto_totalHT  = $outputlangs->transnoentities('FTOTotal'.$this->fto_model);
