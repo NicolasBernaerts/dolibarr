@@ -1,8 +1,8 @@
 # --- FTO models : Beginning ---
 # Template Name
-FTOFactureDescription=Modèle de facture FTO
-FTOCommandeDescription=Modèle de bon dec commande FTO
-FTOPropaleDescription=Modèle de proposition commerciale FTO
+FTOInvoiceDescription=Facture FTO
+FTOOrderDescription=Bon de commande FTO
+FTOProposalDescription=Proposition commerciale FTO
 # Model Name
 FTOName1=Particulier français en Inde 
 FTOName2=Société étrangère en France 
