@@ -38,7 +38,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
  */
 
 //require_once ($fileClassName);
-class pdf_fto extends ModelePDFCommandes
+class pdf_fto_1 extends ModelePDFCommandes
 {
 	// FTO - Specific variables. Available models :
 	//   1 : Private or professional from EU traveling to India
