@@ -38,7 +38,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
  *	Class to manage PDF invoice 
  *  Template FTO
  */
-class pdf_fto extends ModelePDFFactures
+class pdf_fto_1 extends ModelePDFFactures
 {
 	// FTO - Specific variables. Available models :
 	//  1 - Private or professional from EU traveling to India
