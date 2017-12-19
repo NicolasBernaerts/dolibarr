@@ -4,9 +4,10 @@
  * Copyright (C) 2008		Raphael Bertrand	<raphael.bertrand@resultic.fr>
  * Copyright (C) 2010-2013	Juanjo Menent		<jmenent@2byte.es>
  * Copyright (C) 2012      	Christophe Battarel <christophe.battarel@altairis.fr>
- * Copyright (C) 2012       Cedric Salvador     <csalvador@gpcsolutions.fr>
- * Copyright (C) 2015       Marcos García       <marcosgdf@gmail.com>
- * Copyright (C) 2017       Ferran Marcet       <fmarcet@2byte.es>
+ * Copyright (C) 2012       	Cedric Salvador     <csalvador@gpcsolutions.fr>
+ * Copyright (C) 2015       	Marcos García       <marcosgdf@gmail.com>
+ * Copyright (C) 2017       	Ferran Marcet       <fmarcet@2byte.es>
+ * Copyright (C) 2013-2017 	Nicolas Bernaerts	<nicolas.bernaerts@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +24,10 @@
  * or see http://www.gnu.org/
  */
 
-/**
- *	\file       htdocs/core/modules/commande/doc/pdf_einstein.modules.php
+/** FTO
+ *	\file       htdocs/core/modules/commande/doc/commande-pdf_fto.modules.php
  *	\ingroup    commande
- *	\brief      Fichier de la classe permettant de generer les commandes au modele Einstein
+ *	\brief      Fichier de la classe permettant de generer les commandes au modele FTO
  */
 
 require_once DOL_DOCUMENT_ROOT.'/core/modules/commande/modules_commande.php';
@@ -39,8 +40,19 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 /**
  *	Classe to generate PDF orders with template Einstein
  */
-class pdf_einstein extends ModelePDFCommandes
+class pdf_commande_fto_1 extends ModelePDFCommandes
 {
+	// FTO - Specific variables. Available models :
+	//  1 - Private or professional from EU traveling to India
+	//  2 - Service to non european travel
+	//  3 - Private outside EU traveling to France
+	//  4 - Service to european professional
+	var $fto_model;
+	var $fto_textCGI;
+	var $fto_totalHT;
+	var $fto_priceUHT;
+	// FTO
+
     /**
      * @var DoliDb Database handler
      */
@@ -63,7 +75,7 @@ class pdf_einstein extends ModelePDFCommandes
 
 	/**
      * @var array() Minimum version of PHP required by module.
-	 * e.g.: PHP ≥ 5.3 = array(5, 3)
+	 * e.g.: PHP = 5.3 = array(5, 3)
      */
 	public $phpmin = array(5, 2);
 
@@ -164,6 +176,22 @@ class pdf_einstein extends ModelePDFCommandes
 		$this->localtax2=array();
 		$this->atleastoneratenotnull=0;
 		$this->atleastonediscount=0;
+		
+		// FTO - Load language specificities
+		$langs->load("fto");
+		// Model name and description
+		$this->fto_model   = substr (get_class ($this), -1);
+		$this->name        = $langs->transnoentities('FTOOrder'.$this->fto_model);
+		$this->description = $langs->transnoentities('FTODesc'.$this->fto_model);
+		// Set VAT franchise per model
+		$arrVAT = array(FALSE,FALSE,FALSE,TRUE);
+		$mysoc->tva_assuj = $arrVAT [$this->fto_model - 1];
+		$this->franchise=!$mysoc->tva_assuj;
+		if ($this->franchise) $conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT = "1";
+		// Generate compressed and unencrypted PDF files
+		$conf->global->PDF_SECURITY_ENCRYPTION = FALSE;
+		$conf->global->MAIN_DISABLE_PDF_COMPRESSION = FALSE;
+		// FTO
 	}
 
 	/**
@@ -192,6 +220,13 @@ class pdf_einstein extends ModelePDFCommandes
 		$outputlangs->load("products");
 		$outputlangs->load("orders");
 		$outputlangs->load("deliveries");
+
+		// FTO - Initialize from selected language
+		$outputlangs->load("fto");
+		$this->fto_textCGI  = $outputlangs->transnoentities('FTOVAT'.$this->fto_model);
+		$this->fto_priceUHT = $outputlangs->transnoentities('FTOUnit'.$this->fto_model);
+		$this->fto_totalHT  = $outputlangs->transnoentities('FTOTotal'.$this->fto_model);
+		// FTO
 
 		$nblignes = count($object->lines);
 
@@ -261,6 +296,10 @@ class pdf_einstein extends ModelePDFCommandes
 				$pdf->Open();
 				$pagenb=0;
 				$pdf->SetDrawColor(128,128,128);
+
+				// FTO - default draw color
+				$pdf->SetDrawColor($conf->global->PDF_FRCOLOR_R,$conf->global->PDF_FRCOLOR_G,$conf->global->PDF_FRCOLOR_B);
+				// FTO
 
 				$pdf->SetTitle($outputlangs->convToOutputCharset($object->ref));
 				$pdf->SetSubject($outputlangs->transnoentities("Order"));
@@ -345,13 +384,20 @@ class pdf_einstein extends ModelePDFCommandes
 					$tab_top = 88 + $height_incoterms;
 
 					$pdf->SetFont('','', $default_font_size - 1);
-					$pdf->writeHTMLCell(190, 3, $this->posxdesc-1, $tab_top, dol_htmlentitiesbr($notetoshow), 0, 1);
+// FTO				$pdf->writeHTMLCell(190, 3, $this->posxdesc-1, $tab_top, dol_htmlentitiesbr($notetoshow), 0, 1);
+
+					// FTO - Notes text in bold and Set left and right padding for note
+					$pdf->SetFont('','B', $default_font_size - 1);
+					$pdf->SetXY ($this->posxdesc+4, $tab_top);
+					$pdf->MultiCell(180, 3, $outputlangs->convToOutputCharset($object->note_public), 0, 'L'); 
+					// FTO
+
 					$nexY = $pdf->GetY();
 					$height_note=$nexY-$tab_top;
 
 					// Rect prend une longueur en 3eme param
 					$pdf->SetDrawColor(192,192,192);
-					$pdf->Rect($this->marge_gauche, $tab_top-1, $this->page_largeur-$this->marge_gauche-$this->marge_droite, $height_note+1);
+// FTO				$pdf->Rect($this->marge_gauche, $tab_top-1, $this->page_largeur-$this->marge_gauche-$this->marge_droite, $height_note+1);
 
 					$tab_height = $tab_height - $height_note;
 					$tab_top = $nexY+6;
@@ -649,12 +695,20 @@ class pdf_einstein extends ModelePDFCommandes
 
 		$pdf->SetFont('','', $default_font_size - 1);
 
+		// FTO - Color and style for the infos
+		$pdf->SetTextColor(0,0,0);
+		// FTO
+
         // If France, show VAT mention if not applicable
 		if ($this->emetteur->country_code == 'FR' && $this->franchise == 1)
 		{
 			$pdf->SetFont('','B', $default_font_size - 2);
 			$pdf->SetXY($this->marge_gauche, $posy);
-			$pdf->MultiCell(100, 3, $outputlangs->transnoentities("VATIsNotUsedForInvoice"), 0, 'L', 0);
+// FTO		$pdf->MultiCell(100, 3, $outputlangs->transnoentities("VATIsNotUsedForInvoice"), 0, 'L', 0);
+
+			// FTO - if needed, display CGI text
+			if ($this->fto_textCGI != "none") $pdf->MultiCell(100, 3, $this->fto_textCGI, 0, 'L', 0);
+			// FTO
 
 			$posy=$pdf->GetY()+4;
 		}
@@ -833,6 +887,10 @@ class pdf_einstein extends ModelePDFCommandes
 	{
 	    global $conf,$mysoc;
 
+		// FTO - declare global user
+		global $user;
+		// FTO
+
 		$default_font_size = pdf_getPDFFontSize($outputlangs);
 
 		$tab2_top = $posy;
@@ -850,10 +908,33 @@ class pdf_einstein extends ModelePDFCommandes
 		$useborder=0;
 		$index = 0;
 
+		// FTO - Total table
+		// Color and style according to VAT or not
+		$pdf->SetFillColor(255,255,255); 
+		$pdf->SetTextColor(0,0,0);
+		$pdf->SetFont('','B', $default_font_size - 1);
+		if ($this->franchise)
+		{ 
+			$pdf->SetTextColor($conf->global->PDF_TXCOLOR_R,$conf->global->PDF_TXCOLOR_G,$conf->global->PDF_TXCOLOR_B);
+			$pdf->SetFont('','B', $default_font_size);
+		}
+		// Position and size
+		$lltot = 200; 
+		$col1x = 125; 
+		$col2x = 161; 
+		$largcol2  = $lltot - $col2x;
+		$useborder = 1;
+		// FTO
+
 		// Total HT
 		$pdf->SetFillColor(255,255,255);
 		$pdf->SetXY($col1x, $tab2_top + 0);
-		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
+// FTO	$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
+
+		// FTO - Total HT label (according to VAT status)
+		if ($this->franchise) $pdf->SetFillColor($conf->global->PDF_BGCOLOR_R,$conf->global->PDF_BGCOLOR_G,$conf->global->PDF_BGCOLOR_B); 
+		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $this->fto_totalHT, 0, 'L', 1);
+		// FTO
 
 		$total_ht = ($conf->multicurrency->enabled && $object->mylticurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 		$pdf->SetXY($col2x, $tab2_top + 0);
@@ -861,6 +942,12 @@ class pdf_einstein extends ModelePDFCommandes
 
 		// Show VAT by rates and total
 		$pdf->SetFillColor(248,248,248);
+
+		// FTO - VAT color and style
+		$pdf->SetFillColor(255,255,255); 
+		$pdf->SetTextColor(0,0,0);
+		$pdf->SetFont('','B', $default_font_size - 1);
+		// FTO
 
 		$total_ttc = ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? $object->multicurrency_total_ttc : $object->total_ttc;
 
@@ -1035,6 +1122,14 @@ class pdf_einstein extends ModelePDFCommandes
 				$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				$pdf->SetTextColor(0,0,60);
 				$pdf->SetFillColor(224,224,224);
+
+				// FTO - Color and style of total
+				$pdf->SetDrawColor($conf->global->PDF_BGCOLOR_R,$conf->global->PDF_BGCOLOR_G,$conf->global->PDF_BGCOLOR_B);
+				$pdf->SetFillColor($conf->global->PDF_BGCOLOR_R,$conf->global->PDF_BGCOLOR_G,$conf->global->PDF_BGCOLOR_B); 
+				$pdf->SetTextColor($conf->global->PDF_TXCOLOR_R,$conf->global->PDF_TXCOLOR_G,$conf->global->PDF_TXCOLOR_B);
+				$pdf->SetFont('','B', $default_font_size);
+				// FTO
+
 				$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalTTC"), $useborder, 'L', 1);
 
 				$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
@@ -1043,6 +1138,11 @@ class pdf_einstein extends ModelePDFCommandes
 		}
 
 		$pdf->SetTextColor(0,0,0);
+
+		// FTO - Color and style for remaining cells
+		$pdf->SetFillColor(255,255,255); 
+		$pdf->SetFont('','', $default_font_size - 1);
+		// FTO
 
         $creditnoteamount=0;
         $depositsamount=0;
@@ -1074,6 +1174,22 @@ class pdf_einstein extends ModelePDFCommandes
 			$pdf->SetFont('','', $default_font_size - 1);
 			$pdf->SetTextColor(0,0,0);
 		}
+
+		// FTO - Signature (needs $user declared as global)
+		// Generate filename
+		$signName = $user->getFullName($outputlangs);
+		$signFile = $conf->global->PDF_SIGNATURE_PATH . "/" . $signName . ".jpg";
+		// Style
+		$pdf->SetTextColor($conf->global->PDF_TXCOLOR_R,$conf->global->PDF_TXCOLOR_G,$conf->global->PDF_TXCOLOR_B);
+		$pdf->SetFont('','B', $default_font_size);
+		// Signature
+		if (file_exists ( $signFile )) $pdf->Image($signFile, 90, $tab2_top + ($tab2_hl * $index) + 12, 0, 30);
+		$pdf->SetXY (120, $tab2_top + ($tab2_hl * $index) + 12);
+		$pdf->MultiCell($largcol2, $tab2_hl, $signName, 0, 'L', 1);
+		// Previous style
+		$pdf->SetTextColor(0,0,0);
+		$pdf->SetFont('','', $default_font_size - 1);
+		// FTO
 
 		$index++;
 		return ($tab2_top + ($tab2_hl * $index));
@@ -1107,6 +1223,15 @@ class pdf_einstein extends ModelePDFCommandes
 		$pdf->SetTextColor(0,0,0);
 		$pdf->SetFont('','', $default_font_size - 2);
 
+		// FTO - Table frame
+		// Color and style
+		$pdf->SetFillColor($conf->global->PDF_BGCOLOR_R,$conf->global->PDF_BGCOLOR_G,$conf->global->PDF_BGCOLOR_B);
+		$pdf->SetDrawColor($conf->global->PDF_FRCOLOR_R,$conf->global->PDF_FRCOLOR_G,$conf->global->PDF_FRCOLOR_B);
+		// Frame with rounded corners
+		$pdf->RoundedRect($this->marge_gauche, $tab_top,  $this->page_largeur-$this->marge_gauche-$this->marge_droite, 5, 3, "1001", 'DF');
+		$pdf->RoundedRect($this->marge_gauche, $tab_top+5,  $this->page_largeur-$this->marge_gauche-$this->marge_droite, $tab_height-5, 3, "0110", 'D');
+		// FTO
+
 		if (empty($hidetop))
 		{
 			$titre = $outputlangs->transnoentities("AmountInCurrency",$outputlangs->transnoentitiesnoconv("Currency".$currency));
@@ -1120,8 +1245,13 @@ class pdf_einstein extends ModelePDFCommandes
 		$pdf->SetDrawColor(128,128,128);
 		$pdf->SetFont('','', $default_font_size - 1);
 
+		// FTO - Color and style for the titles
+		$pdf->SetTextColor($conf->global->PDF_TXCOLOR_R,$conf->global->PDF_TXCOLOR_G,$conf->global->PDF_TXCOLOR_B);
+		$pdf->SetFont('','B', $default_font_size);
+		// FTO
+
 		// Output Rect
-		$this->printRect($pdf,$this->marge_gauche, $tab_top, $this->page_largeur-$this->marge_gauche-$this->marge_droite, $tab_height, $hidetop, $hidebottom);	// Rect prend une longueur en 3eme param et 4eme param
+// FTO	$this->printRect($pdf,$this->marge_gauche, $tab_top, $this->page_largeur-$this->marge_gauche-$this->marge_droite, $tab_height, $hidetop, $hidebottom);	// Rect prend une longueur en 3eme param et 4eme param
 
 		if (empty($hidetop))
 		{
@@ -1145,7 +1275,11 @@ class pdf_einstein extends ModelePDFCommandes
 		if (empty($hidetop))
 		{
 			$pdf->SetXY($this->posxup-1, $tab_top+1);
-			$pdf->MultiCell($this->posxqty-$this->posxup-1,2, $outputlangs->transnoentities("PriceUHT"),'','C');
+// FTO		$pdf->MultiCell($this->posxqty-$this->posxup-1,2, $outputlangs->transnoentities("PriceUHT"),'','C');
+
+			// FTO - Unit Price HT label according to VAT status
+			$pdf->MultiCell($this->posxqty-$this->posxup-1,2, $this->fto_priceUHT,'','C');
+			// FTO
 		}
 
 		$pdf->line($this->posxqty-1, $tab_top, $this->posxqty-1, $tab_top + $tab_height);
@@ -1188,7 +1322,11 @@ class pdf_einstein extends ModelePDFCommandes
 		if (empty($hidetop))
 		{
 			$pdf->SetXY($this->postotalht-1, $tab_top+1);
-			$pdf->MultiCell(30,2, $outputlangs->transnoentities("TotalHT"),'','C');
+// FTO		$pdf->MultiCell(30,2, $outputlangs->transnoentities("TotalHT"),'','C');
+
+			// FTO - Total HT label according to VAT status
+			$pdf->MultiCell($col2x-$col1x, $tab2_hl, $this->fto_totalHT, 0, 'C', 1);
+			// FTO
 		}
 	}
 
@@ -1211,6 +1349,11 @@ class pdf_einstein extends ModelePDFCommandes
 		$outputlangs->load("propal");
 		$outputlangs->load("companies");
 		$outputlangs->load("orders");
+
+		// FTO - language extensions
+		$outputlangs->load("fto");
+		// FTO
+
 		$default_font_size = pdf_getPDFFontSize($outputlangs);
 
 		pdf_pagehead($pdf,$outputlangs,$this->page_hauteur);
@@ -1233,10 +1376,18 @@ class pdf_einstein extends ModelePDFCommandes
 		$logo=$conf->mycompany->dir_output.'/logos/'.$this->emetteur->logo;
 		if ($this->emetteur->logo)
 		{
+			// FTO - Text style
+			$pdf->SetTextColor($conf->global->PDF_TXCOLOR_R,$conf->global->PDF_TXCOLOR_G,$conf->global->PDF_TXCOLOR_B);
+			// FTO
+
 			if (is_readable($logo))
 			{
 			    $height=pdf_getHeightForLogo($logo);
-			    $pdf->Image($logo, $this->marge_gauche, $posy, 0, $height);	// width=0 (auto)
+// FTO		    $pdf->Image($logo, $this->marge_gauche, $posy, 0, $height);	// width=0 (auto)
+
+				// FTO - Logo
+				$pdf->Image($logo, $this->marge_gauche, $posy - 5, 0, 40);
+				// FTO
 			}
 			else
 			{
@@ -1303,6 +1454,13 @@ class pdf_einstein extends ModelePDFCommandes
 
 		if ($showaddress)
 		{
+			// FTO - determine email address according to billing langage
+			if ($outputlangs->getDefaultLang () == "fr_FR")
+				$this->emetteur->email = "fto.inde@gmail.com";
+			else 
+				$this->emetteur->email = "fto.company@gmail.com";
+			// FTO
+
 			// Sender properties
 			$carac_emetteur = pdf_build_address($outputlangs, $this->emetteur, $object->thirdparty);
 
@@ -1316,24 +1474,49 @@ class pdf_einstein extends ModelePDFCommandes
 			$pdf->SetTextColor(0,0,0);
 			$pdf->SetFont('','', $default_font_size - 2);
 			$pdf->SetXY($posx,$posy-5);
-			$pdf->MultiCell(66,5, $outputlangs->transnoentities("BillFrom").":", 0, 'L');
+// FTO		$pdf->MultiCell(66,5, $outputlangs->transnoentities("BillFrom").":", 0, 'L');
 			$pdf->SetXY($posx,$posy);
 			$pdf->SetFillColor(230,230,230);
-			$pdf->MultiCell(82, $hautcadre, "", 0, 'R', 1);
+// FTO		$pdf->MultiCell(82, $hautcadre, "", 0, 'R', 1);
 			$pdf->SetTextColor(0,0,60);
 
 			// Show sender name
 			$pdf->SetXY($posx+2,$posy+3);
 			$pdf->SetFont('','B', $default_font_size);
-			$pdf->MultiCell(80, 4, $outputlangs->convToOutputCharset($this->emetteur->name), 0, 'L');
+// FTO		$pdf->MultiCell(80, 4, $outputlangs->convToOutputCharset($this->emetteur->name), 0, 'L');
 			$posy=$pdf->getY();
 
 			// Show sender information
 			$pdf->SetXY($posx+2,$posy);
 			$pdf->SetFont('','', $default_font_size - 1);
-			$pdf->MultiCell(80, 4, $carac_emetteur, 0, 'L');
+// FTO		$pdf->MultiCell(80, 4, $carac_emetteur, 0, 'L');
 
-
+			// FTO - Sender frame
+			// Size and position
+			$posx=$this->marge_gauche;
+			$posy=50;
+			$hautcadre=32;
+			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=105;
+			// Frame title
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetFont('','',$default_font_size - 2);
+			$pdf->SetXY($posx,$posy-4);
+			$pdf->MultiCell(88, 4, $outputlangs->transnoentities("BillFrom"), 0, 'L');
+			// Style
+			$pdf->SetDrawColor($conf->global->PDF_BGCOLOR_R,$conf->global->PDF_BGCOLOR_G,$conf->global->PDF_BGCOLOR_B);
+			$pdf->SetFillColor($conf->global->PDF_BGCOLOR_R,$conf->global->PDF_BGCOLOR_G,$conf->global->PDF_BGCOLOR_B);
+			$pdf->SetTextColor($conf->global->PDF_TXCOLOR_R,$conf->global->PDF_TXCOLOR_G,$conf->global->PDF_TXCOLOR_B);
+			// Frame 
+			$pdf->RoundedRect($posx, $posy, 82, $hautcadre, 3, "1111", 'DF');
+			// Name
+			$pdf->SetFont('','B',$default_font_size);
+			$pdf->SetXY($posx+2,$posy+3);
+			$pdf->MultiCell(78, 4, $outputlangs->convToOutputCharset($this->emetteur->name), 0, 'L');
+			// Information
+			$pdf->SetFont('','',$default_font_size - 1);
+			$pdf->SetXY($posx+2,$posy+8);
+			$pdf->MultiCell(78,3,$carac_emetteur, 0, 'L');
+			// FTO
 
 			// If CUSTOMER contact defined on order, we use it
 			$usecontact=false;
@@ -1367,23 +1550,54 @@ class pdf_einstein extends ModelePDFCommandes
 			$pdf->SetTextColor(0,0,0);
 			$pdf->SetFont('','', $default_font_size - 2);
 			$pdf->SetXY($posx+2,$posy-5);
-			$pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("BillTo").":",0,'L');
-			$pdf->Rect($posx, $posy, $widthrecbox, $hautcadre);
+// FTO		$pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("BillTo").":",0,'L');
+// FTO		$pdf->Rect($posx, $posy, $widthrecbox, $hautcadre);
 
 			// Show recipient name
 			$pdf->SetXY($posx+2,$posy+3);
 			$pdf->SetFont('','B', $default_font_size);
-			$pdf->MultiCell($widthrecbox, 4, $carac_client_name, 0, 'L');
+// FTO		$pdf->MultiCell($widthrecbox, 4, $carac_client_name, 0, 'L');
 
 			$posy = $pdf->getY();
 
 			// Show recipient information
 			$pdf->SetFont('','', $default_font_size - 1);
 			$pdf->SetXY($posx+2,$posy);
-			$pdf->MultiCell($widthrecbox, 4, $carac_client, 0, 'L');
-		}
+// FTO		$pdf->MultiCell($widthrecbox, 4, $carac_client, 0, 'L');
+
+			// FTO - Customer frame
+			// Frame size and position
+			$posy=50;
+			$posx=105;
+			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->marge_gauche;
+			// Title
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetXY($posx,$posy-4);
+			$pdf->SetFont('','', $default_font_size - 2);
+			$pdf->MultiCell(88, 4, $outputlangs->transnoentities("BillTo"), 0, 'L');
+			// Style
+			$pdf->SetDrawColor($conf->global->PDF_FRCOLOR_R,$conf->global->PDF_FRCOLOR_G,$conf->global->PDF_FRCOLOR_B);
+			$pdf->SetFillColor(255,255,255);
+			$pdf->SetTextColor($conf->global->PDF_TXCOLOR_R,$conf->global->PDF_TXCOLOR_G,$conf->global->PDF_TXCOLOR_B);
+			// Frame
+			$pdf->RoundedRect($posx, $posy, 96, $hautcadre, 3, "1111", 'DF');
+			// Name
+			$pdf->SetXY($posx+2,$posy+3);
+			$pdf->SetFont('','B', $default_font_size);
+			$pdf->MultiCell(90, 4, $carac_client_name, 0, 'L');
+			// Information
+			$pdf->SetFont('','', $default_font_size - 1);
+			$pdf->SetXY($posx+2,$posy+8);
+			$pdf->MultiCell(90, 3, $carac_client);
+			// FTO
+			}
 
 		$pdf->SetTextColor(0,0,0);
+
+		// FTO - Back to default style
+		$pdf->SetDrawColor(0,0,0);
+		$pdf->SetFillColor(255,255,255);
+		// FTO
 	}
 
 	/**
@@ -1398,6 +1612,11 @@ class pdf_einstein extends ModelePDFCommandes
 	function _pagefoot(&$pdf,$object,$outputlangs,$hidefreetext=0)
 	{
 		global $conf;
+		
+		// FTO - Black font for footer
+		$pdf->SetTextColor(0,0,0);
+		// FTO
+		
 		$showdetails=$conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS;
 		return pdf_pagefoot($pdf,$outputlangs,'ORDER_FREE_TEXT',$this->emetteur,$this->marge_basse,$this->marge_gauche,$this->page_hauteur,$object,$showdetails,$hidefreetext);
 	}
