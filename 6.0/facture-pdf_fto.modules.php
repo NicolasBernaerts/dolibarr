@@ -1,7 +1,7 @@
 <?php
 /* Copyright (C) 2004-2014	Laurent Destailleur	<eldy@users.sourceforge.net>
  * Copyright (C) 2005-2012	Regis Houssin		<regis.houssin@capnetworks.com>
- * Copyright (C) 2008		Raphael Bertrand		<raphael.bertrand@resultic.fr>
+ * Copyright (C) 2008		Raphael Bertrand	<raphael.bertrand@resultic.fr>
  * Copyright (C) 2010-2014	Juanjo Menent		<jmenent@2byte.es>
  * Copyright (C) 2012		Christophe Battarel	<christophe.battarel@altairis.fr>
  * Copyright (C) 2012		Cédric Salvador		<csalvador@gpcsolutions.fr>
@@ -25,10 +25,10 @@
  * or see http://www.gnu.org/
  */
 
-/**
- *	\file       htdocs/core/modules/facture/doc/pdf_crabe.modules.php
+/** FTO
+ *	\file       htdocs/core/modules/facture/doc/facture-pdf_fto.modules.php
  *	\ingroup    facture
- *	\brief      File of class to generate customers invoices from crabe model
+ *	\brief      File of class to generate customers invoices from FTO model
  */
 
 require_once DOL_DOCUMENT_ROOT.'/core/modules/facture/modules_facture.php';
@@ -41,7 +41,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 /**
  *	Class to manage PDF invoice template FTO
  */
-class pdf_fto_1 extends ModelePDFFactures
+class pdf_facture_fto_1 extends ModelePDFFactures
 {
 	// FTO - Specific variables. Available models :
 	//  1 - Private or professional from EU traveling to India
@@ -176,7 +176,7 @@ class pdf_fto_1 extends ModelePDFFactures
 		$mysoc->tva_assuj = $arrVAT [$this->fto_model - 1];
 		$this->franchise=!$mysoc->tva_assuj;
 		if ($this->franchise) $conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT = "1";
-		// Genarate compressed and unencrypted PDF files
+		// Generate compressed and unencrypted PDF files
 		$conf->global->PDF_SECURITY_ENCRYPTION = FALSE;
 		$conf->global->MAIN_DISABLE_PDF_COMPRESSION = FALSE;
 		// FTO
@@ -429,8 +429,9 @@ class pdf_fto_1 extends ModelePDFFactures
 					$nexY = $pdf->GetY();
 					$height_note=$nexY-$tab_top;
 
-					// FTO - Rectangle removed
-					// FTO
+					// Rect prend une longueur en 3eme param
+// FTO				$pdf->SetDrawColor(192,192,192);
+// FTO				$pdf->Rect($this->marge_gauche, $tab_top-1, $this->page_largeur-$this->marge_gauche-$this->marge_droite, $height_note+1);
 
 					$tab_height = $tab_height - $height_note;
 					$tab_top = $nexY+6;
@@ -954,7 +955,11 @@ class pdf_fto_1 extends ModelePDFFactures
 		{
 			$pdf->SetFont('','B', $default_font_size - 2);
 			$pdf->SetXY($this->marge_gauche, $posy);
-			$pdf->MultiCell(100, 3, $outputlangs->transnoentities("VATIsNotUsedForInvoice"), 0, 'L', 0);
+// FTO		$pdf->MultiCell(100, 3, $outputlangs->transnoentities("VATIsNotUsedForInvoice"), 0, 'L', 0);
+			
+			// FTO - if needed, display CGI text
+			if ($this->fto_textCGI != "none") $pdf->MultiCell(100, 3, $this->fto_textCGI, 0, 'L', 0);
+			// FTO
 
 			$posy=$pdf->GetY()+4;
 		}
@@ -1134,7 +1139,7 @@ class pdf_fto_1 extends ModelePDFFactures
 		$pdf->SetFont('','B', $default_font_size - 1);
 		if ($this->franchise)
 		{ 
-			$pdf->SetTextColor(PDF_TXCOLOR_R,PDF_TXCOLOR_G,PDF_TXCOLOR_B);
+			$pdf->SetTextColor($conf->global->PDF_TXCOLOR_R,$conf->global->PDF_TXCOLOR_G,$conf->global->PDF_TXCOLOR_B);
 			$pdf->SetFont('','B', $default_font_size);
 		}
 		// Position and size
@@ -1148,6 +1153,7 @@ class pdf_fto_1 extends ModelePDFFactures
 		// Total HT
 		$pdf->SetFillColor(255,255,255);
 		$pdf->SetXY($col1x, $tab2_top + 0);
+// FTO	$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
 
 		// FTO - Total HT label (according to VAT status)
 		if ($this->franchise) $pdf->SetFillColor($conf->global->PDF_BGCOLOR_R,$conf->global->PDF_BGCOLOR_G,$conf->global->PDF_BGCOLOR_B); 
@@ -1560,6 +1566,7 @@ class pdf_fto_1 extends ModelePDFFactures
 		if (empty($hidetop))
 		{
 			$pdf->SetXY($this->posxup-1, $tab_top+1);
+// FTO		$pdf->MultiCell($this->posxqty-$this->posxup-1,2, $outputlangs->transnoentities("PriceUHT"),'','C');
 
 			// FTO - Unit Price HT label according to VAT status
 			$pdf->MultiCell($this->posxqty-$this->posxup-1,2, $this->fto_priceUHT,'','C');
@@ -1645,6 +1652,7 @@ class pdf_fto_1 extends ModelePDFFactures
 		if (empty($hidetop))
 		{
 			$pdf->SetXY($this->postotalht-1, $tab_top+1);
+// FTO		$pdf->MultiCell(30,2, $outputlangs->transnoentities("TotalHT"),'','C');
 			
 			// FTO - Total HT label according to VAT status
 			$pdf->MultiCell($col2x-$col1x, $tab2_hl, $this->fto_totalHT, 0, 'C', 1);
@@ -1705,6 +1713,7 @@ class pdf_fto_1 extends ModelePDFFactures
 			if (is_readable($logo))
 			{
 			    $height=pdf_getHeightForLogo($logo);
+// FTO		    $pdf->Image($logo, $this->marge_gauche, $posy, 0, $height);	// width=0 (auto)
 
 				// FTO - Logo
 				$pdf->Image($logo, $this->marge_gauche, $posy - 5, 0, 40);
