@@ -1,7 +1,7 @@
 FTO Dolibarr modules
 ========
 
-This repository handles different models of contractual documents for Dolibarr ERP version 3.8.
+This repository handles different models of contractual documents for Dolibarr ERP.
 
 It provides some commercial proposals & bills models that follow specific French travel agency rules & regulations.
 
@@ -11,10 +11,10 @@ They are designed to handle 4 different cases :
   - Private outside EU traveling to EU
   - Service to european professional 
 
-To install them on an existing Dolibarr, just download fto_install.sh and run it.
+To install them on an existing Dolibarr, just download fto_install.sh for your Dolibarr x.X version and run it.
 
 ```
-wget https://raw.githubusercontent.com/NicolasBernaerts/dolibarr/master/fto_install.sh
+wget https://raw.githubusercontent.com/NicolasBernaerts/dolibarr/master/x.x/fto_install.sh
 . ./fto_install.sh
 ```
 
