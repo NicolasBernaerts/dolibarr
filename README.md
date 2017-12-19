@@ -11,7 +11,7 @@ They are designed to handle 4 different cases :
   - Private outside EU traveling to EU
   - Service to european professional 
 
-To install them on an existing Dolibarr, just download fto_install.sh for your Dolibarr x.X version and run it.
+To install them on an existing Dolibarr, just download fto_install.sh for your Dolibarr X.x version and run it.
 
 ```
 wget https://raw.githubusercontent.com/NicolasBernaerts/dolibarr/master/x.x/fto_install.sh
