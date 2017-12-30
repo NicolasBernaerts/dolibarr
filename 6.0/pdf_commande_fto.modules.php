@@ -40,7 +40,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 /**
  *	Classe to generate PDF orders with template Einstein
  */
-class pdf_commande_fto_1 extends ModelePDFCommandes
+class pdf_commande_fto extends ModelePDFCommandes
 {
 	// FTO - Specific variables. Available models :
 	//  1 - Private or professional from EU traveling to India
