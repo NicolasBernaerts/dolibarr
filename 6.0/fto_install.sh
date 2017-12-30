@@ -23,22 +23,24 @@ sed -i 's/pdf_facture_fto/pdf_facture_fto_3/g' "${DOLIBARR_MODULE}/facture/doc/p
 sed -i 's/pdf_facture_fto/pdf_facture_fto_4/g' "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_4.modules.php"
 
 # Installation : Commercial proposal
-wget -O "${DOLIBARR_MODULE}/propale/doc/pdf_fto_1.modules.php" "${GITHUB_REPO}/propale-pdf_fto.modules.php"
-cp "${DOLIBARR_MODULE}/propale/doc/pdf_fto_1.modules.php" "${DOLIBARR_MODULE}/propale/doc/pdf_fto_2.modules.php"
-cp "${DOLIBARR_MODULE}/propale/doc/pdf_fto_1.modules.php" "${DOLIBARR_MODULE}/propale/doc/pdf_fto_3.modules.php"
-cp "${DOLIBARR_MODULE}/propale/doc/pdf_fto_1.modules.php" "${DOLIBARR_MODULE}/propale/doc/pdf_fto_4.modules.php"
-sed -i 's/pdf_propale_fto_1/pdf_propale_fto_2/g' "${DOLIBARR_MODULE}/propale/doc/pdf_fto_2.modules.php"
-sed -i 's/pdf_propale_fto_1/pdf_propale_fto_3/g' "${DOLIBARR_MODULE}/propale/doc/pdf_fto_3.modules.php"
-sed -i 's/pdf_propale_fto_1/pdf_propale_fto_4/g' "${DOLIBARR_MODULE}/propale/doc/pdf_fto_4.modules.php"
+wget -O "${DOLIBARR_MODULE}/propale/doc/pdf_propale_fto_1.modules.php" "${GITHUB_REPO}/pdf_propale_fto.modules.php"
+cp "${DOLIBARR_MODULE}/propale/doc/pdf_propale_fto_1.modules.php" "${DOLIBARR_MODULE}/propale/doc/pdf_propale_fto_2.modules.php"
+cp "${DOLIBARR_MODULE}/propale/doc/pdf_propale_fto_1.modules.php" "${DOLIBARR_MODULE}/propale/doc/pdf_propale_fto_3.modules.php"
+cp "${DOLIBARR_MODULE}/propale/doc/pdf_propale_fto_1.modules.php" "${DOLIBARR_MODULE}/propale/doc/pdf_propale_fto_4.modules.php"
+sed -i 's/pdf_propale_fto/pdf_propale_fto_1/g' "${DOLIBARR_MODULE}/propale/doc/pdf_propale_fto_1.modules.php"
+sed -i 's/pdf_propale_fto/pdf_propale_fto_2/g' "${DOLIBARR_MODULE}/propale/doc/pdf_propale_fto_2.modules.php"
+sed -i 's/pdf_propale_fto/pdf_propale_fto_3/g' "${DOLIBARR_MODULE}/propale/doc/pdf_propale_fto_3.modules.php"
+sed -i 's/pdf_propale_fto/pdf_propale_fto_4/g' "${DOLIBARR_MODULE}/propale/doc/pdf_propale_fto_4.modules.php"
 
 # Installation : Order
-wget -O "${DOLIBARR_MODULE}/commande/doc/pdf_fto_1.modules.php" "${GITHUB_REPO}/commande-pdf_fto.modules.php"
-cp "${DOLIBARR_MODULE}/commande/doc/pdf_fto_1.modules.php" "${DOLIBARR_MODULE}/commande/doc/pdf_fto_2.modules.php"
-cp "${DOLIBARR_MODULE}/commande/doc/pdf_fto_1.modules.php" "${DOLIBARR_MODULE}/commande/doc/pdf_fto_3.modules.php"
-cp "${DOLIBARR_MODULE}/commande/doc/pdf_fto_1.modules.php" "${DOLIBARR_MODULE}/commande/doc/pdf_fto_4.modules.php"
-sed -i 's/pdf_commande_fto_1/pdf_commande_fto_2/g' "${DOLIBARR_MODULE}/commande/doc/pdf_fto_2.modules.php"
-sed -i 's/pdf_commande_fto_1/pdf_commande_fto_3/g' "${DOLIBARR_MODULE}/commande/doc/pdf_fto_3.modules.php"
-sed -i 's/pdf_commande_fto_1/pdf_commande_fto_4/g' "${DOLIBARR_MODULE}/commande/doc/pdf_fto_4.modules.php"
+wget -O "${DOLIBARR_MODULE}/commande/doc/pdf_commande_fto_1.modules.php" "${GITHUB_REPO}/pdf_commande_fto.modules.php"
+cp "${DOLIBARR_MODULE}/commande/doc/pdf_commande_fto_1.modules.php" "${DOLIBARR_MODULE}/commande/doc/pdf_commande_fto_2.modules.php"
+cp "${DOLIBARR_MODULE}/commande/doc/pdf_commande_fto_1.modules.php" "${DOLIBARR_MODULE}/commande/doc/pdf_commande_fto_3.modules.php"
+cp "${DOLIBARR_MODULE}/commande/doc/pdf_commande_fto_1.modules.php" "${DOLIBARR_MODULE}/commande/doc/pdf_commande_fto_4.modules.php"
+sed -i 's/pdf_commande_fto/pdf_commande_fto_1/g' "${DOLIBARR_MODULE}/commande/doc/pdf_commande_fto_1.modules.php"
+sed -i 's/pdf_commande_fto/pdf_commande_fto_2/g' "${DOLIBARR_MODULE}/commande/doc/pdf_commande_fto_2.modules.php"
+sed -i 's/pdf_commande_fto/pdf_commande_fto_3/g' "${DOLIBARR_MODULE}/commande/doc/pdf_commande_fto_3.modules.php"
+sed -i 's/pdf_commande_fto/pdf_commande_fto_4/g' "${DOLIBARR_MODULE}/commande/doc/pdf_commande_fto_4.modules.php"
 
 # Installation : FTO models langage files 
 wget -O "${DOLIBARR_LANG}/en_US/fto.lang" "${GITHUB_REPO}/langs/en_US-fto.lang"
