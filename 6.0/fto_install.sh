@@ -13,13 +13,14 @@ DOLIBARR_MODULE="/usr/share/dolibarr/htdocs/core/modules"
 DOLIBARR_LANG="/usr/share/dolibarr/htdocs/langs"
 
 # Installation : Invoice
-wget -O "${DOLIBARR_MODULE}/facture/doc/pdf_fto_1.modules.php" "${GITHUB_REPO}/facture-pdf_fto.modules.php"
-cp "${DOLIBARR_MODULE}/facture/doc/pdf_fto_1.modules.php" "${DOLIBARR_MODULE}/facture/doc/pdf_fto_2.modules.php"
-cp "${DOLIBARR_MODULE}/facture/doc/pdf_fto_1.modules.php" "${DOLIBARR_MODULE}/facture/doc/pdf_fto_3.modules.php"
-cp "${DOLIBARR_MODULE}/facture/doc/pdf_fto_1.modules.php" "${DOLIBARR_MODULE}/facture/doc/pdf_fto_4.modules.php"
-sed -i 's/pdf_facture_fto_1/pdf_facture_fto_2/g' "${DOLIBARR_MODULE}/facture/doc/pdf_fto_2.modules.php"
-sed -i 's/pdf_facture_fto_1/pdf_facture_fto_3/g' "${DOLIBARR_MODULE}/facture/doc/pdf_fto_3.modules.php"
-sed -i 's/pdf_facture_fto_1/pdf_facture_fto_4/g' "${DOLIBARR_MODULE}/facture/doc/pdf_fto_4.modules.php"
+wget -O "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_1.modules.php" "${GITHUB_REPO}/pdf_facture_fto.modules.php"
+cp "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_1.modules.php" "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_2.modules.php"
+cp "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_1.modules.php" "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_3.modules.php"
+cp "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_1.modules.php" "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_4.modules.php"
+sed -i 's/pdf_facture_fto/pdf_facture_fto_1/g' "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_1.modules.php"
+sed -i 's/pdf_facture_fto/pdf_facture_fto_2/g' "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_2.modules.php"
+sed -i 's/pdf_facture_fto/pdf_facture_fto_3/g' "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_3.modules.php"
+sed -i 's/pdf_facture_fto/pdf_facture_fto_4/g' "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_4.modules.php"
 
 # Installation : Commercial proposal
 wget -O "${DOLIBARR_MODULE}/propale/doc/pdf_fto_1.modules.php" "${GITHUB_REPO}/propale-pdf_fto.modules.php"
