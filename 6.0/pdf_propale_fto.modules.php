@@ -39,7 +39,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 /**
  *	Class to generate PDF proposal Azur
  */
-class pdf_propale_fto_1 extends ModelePDFPropales
+class pdf_propale_fto extends ModelePDFPropales
 {
 	// FTO - Specific variables. Available models :
 	//  1 - Private or professional from EU traveling to India
