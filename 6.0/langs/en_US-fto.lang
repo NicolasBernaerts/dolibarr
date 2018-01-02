@@ -1,19 +1,9 @@
 # --- FTO models : Beginning ---
-# Invoice Template Name
-FTOInvoice1=fto-invoice-private-asia
-FTOInvoice2=fto-invoice-service-foreign
-FTOInvoice3=fto-invoice-foreign-france
-FTOInvoice4=fto-invoice-service-europe
-# Proposal Template Name
-FTOProposal1=fto-proposal-private-asia
-FTOProposal2=fto-proposal-service-foreign
-FTOProposal3=fto-proposal-foreign-france
-FTOProposal4=fto-proposal-service-europe
-# Order Template Name
-FTOOrder1=fto-order-private-asia
-FTOOrder2=fto-order-service-foreign
-FTOOrder3=fto-order-foreign-france
-FTOOrder4=fto-order-service-europe
+# Template Name
+FTOModel1=European abroad
+FTOModel2=Service for non european
+FTOModel3=Non european to France
+FTOModel4=Service for european
 # Model Description
 FTODesc1=European private/prof. traveling to Asia 
 FTODesc2=Service for non european travel agency
