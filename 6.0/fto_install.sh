@@ -4,7 +4,7 @@
 # Tested with Dolibarr 6.0 on Debian 8 Jessie
 #  Revision history :
 #   18/01/2016, V1.0 - Creation by N. Bernaerts
-#   15/12/2017, V1.1 - Adapted for Dolibarr 6.0 models
+#   15/12/2017, V1.1 - Adapted for Dolibarr 6.0
 # --------------------------------------------------------
 
 # GitHub repository
