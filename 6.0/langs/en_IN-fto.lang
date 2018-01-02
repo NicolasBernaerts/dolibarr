@@ -15,7 +15,7 @@ FTOOrder2=fto-order-service-foreign
 FTOOrder3=fto-order-foreign-france
 FTOOrder4=fto-order-service-europe
 # Model Description
-FTODesc1=European private/prof. traveling to India 
+FTODesc1=European private/prof. traveling outside Europe 
 FTODesc2=Service for non european travel agency
 FTODesc3=Non european private/prof. traveling to France 
 FTODesc4=Service for european professional
