@@ -181,7 +181,7 @@ class pdf_commande_fto extends ModelePDFCommandes
 		$langs->load("fto");
 		// Model name and description
 		$this->fto_model   = substr (get_class ($this), -1);
-		$this->name        = $langs->transnoentities('FTOOrder'.$this->fto_model);
+		$this->name        = $langs->transnoentities('FTOName'.$this->fto_model);
 		$this->description = $langs->transnoentities('FTODesc'.$this->fto_model);
 		// Set VAT franchise per model
 		$arrVAT = array(FALSE,FALSE,FALSE,TRUE);
