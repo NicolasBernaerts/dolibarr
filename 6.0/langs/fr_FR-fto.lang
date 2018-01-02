@@ -1,34 +1,19 @@
 # --- FTO models : Beginning ---
-# Invoice Template Name
-FTOInvoice1=fto-invoice-private-asia
-FTOInvoice2=fto-invoice-service-foreign
-FTOInvoice3=fto-invoice-foreign-france
-FTOInvoice4=fto-invoice-service-europe
-# Proposal Template Name
-FTOProposal1=fto-proposal-private-asia
-FTOProposal2=fto-proposal-service-foreign
-FTOProposal3=fto-proposal-foreign-france
-FTOProposal4=fto-proposal-service-europe
-# Order Template Name
-FTOOrder1=fto-order-private-asia
-FTOOrder2=fto-order-service-foreign
-FTOOrder3=fto-order-foreign-france
-FTOOrder4=fto-order-service-europe
 # Model Name
-FTOName1=Particulier français en Inde 
-FTOName2=Société étrangère en France 
-FTOName3=Particulier étranger en France
-FTOName4=Service pour société française
+FTOName1=Particulier hors d'Europe 
+FTOName2=Service pour société étrangère 
+FTOName3=Etranger en France
+FTOName4=Service pour société européenne
 # Model Description
-FTODesc1=Particulier/prof. européen voyageant en Inde 
+FTODesc1=Particulier/professionnel européen voyageant hors d'Europe 
 FTODesc2=Service pour agence de vogage hors union européenne 
-FTODesc3=Particulier/prof. non européen voyageant en France
+FTODesc3=Particulier/professionnel non européen voyageant en France
 FTODesc4=Service pour société européenne 
 # VAT regulation text
 FTOVAT1=* TVA non applicable, article 262bis du CGI
 FTOVAT2=* TVA non applicable, article 259 du CGI
 FTOVAT3=* Facturation régie par la TVA entre agences de voyages, article 266 du CGI
-FTOVAT4=none
+FTOVAT4=Aucune
 # Unit Price Header
 FTOUnit1=P.U.
 FTOUnit2=P.U.
