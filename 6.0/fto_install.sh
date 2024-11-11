@@ -11,20 +11,20 @@
 # if no argument, display help
 if [ $# -eq 0 ] 
 then
-	echo "Install FTO custom for Dolibarr"
-	echo "Parameters are :"
-	echo "  --normal    Install in a normal Debian or Ubuntu env."
+  echo "Install FTO custom for Dolibarr"
+  echo "Parameters are :"
+  echo "  --normal    Install in a normal Debian or Ubuntu env."
   echo "  --docker    Install in a docker env. under /opt/dolibarr.data"
-	exit 1
+  exit 1
 fi
 
 # iterate thru parameters
 while test ${#} -gt 0
 do
-	case $1 in
-		--normal) shift; MODE="normal"; shift; ;;
-		--docker) shift; MODE="docker"; shift; ;;
-    esac
+  case $1 in
+    --normal) shift; MODE="normal"; shift; ;;
+    --docker) shift; MODE="docker"; shift; ;;
+  esac
 done
 
 # if no running mode, error
@@ -34,14 +34,17 @@ done
 GITHUB_REPO="https://raw.githubusercontent.com/NicolasBernaerts/dolibarr/master/6.0"
 
 # target directories
-if [ "${MODE}" = "normal" ]
-then
+case "${MODE}" in
+  normal)
   DOLIBARR_MODULE="/usr/share/dolibarr/htdocs/core/modules"
   DOLIBARR_LANG="/usr/share/dolibarr/htdocs/langs"
-else
+  ;;
+  
+  docker)
   DOLIBARR_MODULE="/opt/dolibarr.data/modules"
   DOLIBARR_LANG="/opt/dolibarr.data/langs"
-fi
+  ;;
+esac
 
 # Installation : Invoice
 wget -O "${DOLIBARR_MODULE}/facture/doc/pdf_facture_fto_1.modules.php" "${GITHUB_REPO}/pdf_facture_fto.modules.php"
